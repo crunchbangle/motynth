@@ -8,6 +8,7 @@ export default defineConfig({
     include: ['test/**/*.test.{ts,tsx}'],
     // Component tests opt into a browser-like DOM with `// @vitest-environment jsdom`.
     environment: 'node',
+    setupFiles: ['test/support/setup.ts'],
     // Tests use the global `test`, `expect` and `vi` instead of importing them
     // from 'vitest'. On Windows, importing 'vitest' from a working directory
     // with a lowercase drive letter (as VS Code and Git Bash use) loads a

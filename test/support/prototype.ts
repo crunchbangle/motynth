@@ -79,6 +79,18 @@ export interface PrototypeSoundExports {
   ) => { pts: [number, number][]; end: number };
 }
 
+/** The prototype's syntax highlighter: one line of code to an HTML string. */
+export function loadPrototypeHighlighter(): { hi: (line: string) => string } {
+  const source = prototypeSource();
+  const esc = between(source, 'const esc=', 'const uid=');
+  const highlighter = between(
+    source,
+    '/* =====================  syntax highlighting',
+    '/* =====================  compose',
+  );
+  return run(esc + highlighter, '{ hi }');
+}
+
 /**
  * The prototype's helpers, sound library and audio maths. None of it touches
  * the page or Web Audio when loaded; only when its functions are called.
