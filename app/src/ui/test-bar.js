@@ -1,4 +1,4 @@
-import {compile} from '../engine/index.js';
+import {compile} from '../engine/index.ts';
 import {h, $, debounce} from './dom.js';
 import {Player, Snd} from './audio.js';
 import {curInst} from './sounds.js';
@@ -20,10 +20,10 @@ const Test={
     const inst=curInst();if(!inst)return;
     const msg=$('#testMsg');msg.textContent='';
     const oct=parseInt($('#testOct').value,10)||0;
-    const res=compile('piece = ('+$('#testMotif').value+')^'+oct,{instruments:null,defaultInst:null});
-    if(!res.ok){msg.textContent=res.error.msg;return;}
+    const res=compile('piece = ('+$('#testMotif').value+')^'+oct,{instruments:null,defaultInstrument:null});
+    if(!res.ok){msg.textContent=res.error.message;return;}
     Snd.ensure();
-    Player.start({tag:'test',events:res.events,total:res.total,loop:false,resolve:()=>inst});
+    Player.start({tag:'test',events:res.events,total:res.durationSeconds,loop:false,resolve:()=>inst});
   }
 };
 

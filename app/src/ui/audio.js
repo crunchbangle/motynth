@@ -128,10 +128,10 @@ const Player={
     const s=this.s;if(!s)return;
     const now=s.ctx.currentTime,horizon=now+.8,ev=s.o.events;
     while(s.idx<ev.length){
-      const e=ev[s.idx],at=s.t0+e.t;
+      const e=ev[s.idx],at=s.t0+e.start;
       if(at>horizon)break;
-      const inst=s.o.resolve(e.inst);
-      if(inst)playVoice(s,inst,e.freq,Math.max(at,now+.003),e.d);
+      const inst=s.o.resolve(e.instrument);
+      if(inst)playVoice(s,inst,e.frequency,Math.max(at,now+.003),e.duration);
       s.idx++;
     }
     if(s.idx>=ev.length){

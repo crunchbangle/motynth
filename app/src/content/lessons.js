@@ -1,4 +1,4 @@
-import {BUILTIN_MODES, RESERVED} from '../engine/index.js';
+import {BUILTIN_MODES, KEYWORDS} from '../engine/index.ts';
 
 const LESSONS=[
 {id:'first',title:'Your first notes',blocks:[
@@ -56,7 +56,7 @@ const REFERENCE=[
   ['tuning 12 of 2','Notes per register, and the register ratio'],
   ['tuning 13','Change the note count, keep the ratio'],
   ['register 3','Change only the register ratio'],
-  ['mode minor','Pick a mode by name. Built in: '+Object.keys(BUILTIN_MODES).join(', ')],
+  ['mode minor','Pick a mode by name. Built in: '+[...BUILTIN_MODES.keys()].join(', ')],
   ['mode [0 2 3 5 7 8 10]','Or write the steps yourself'],
   ['mode name = [ ... ]','Define a named mode'],
   ['names [C Db D ...]','Name each step of the tuning'],
@@ -96,7 +96,7 @@ const REFERENCE=[
   ['piece = ...','The thing that plays (else the last line)']]],
  ['Names',[
   ['my-tune  bass_2','Letters, digits, _ and -, starting with a letter or _'],
-  ['with  rest  ...','Keywords can’t be names: '+[...RESERVED].join(', ')],
+  ['with  rest  ...','Keywords can’t be names: '+[...KEYWORDS].join(', ')],
   ['x  r  n3','Inside a motif these mean a hit, a rest and a tuning step, so a motif with one of these names can’t be used inside another motif'],
   // A function is filled in when the reference is shown, with the current instruments.
   ['inst:',ctx=>'Your instruments: '+[...ctx.instruments].join(', ')+'. Add or rename them in the Sounds tab.']]]

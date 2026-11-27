@@ -179,3 +179,49 @@ export function randomPrograms(seed: number, count: number): string[] {
   const random = makeRandom(seed);
   return Array.from({ length: count }, () => new ProgramGenerator(random).program());
 }
+
+/** Characters that matter to the parser, for corrupting programs. */
+const SIGNIFICANT = [
+  '[',
+  ']',
+  '(',
+  ')',
+  '{',
+  '}',
+  ':',
+  ',',
+  '.',
+  '_',
+  '^',
+  '~',
+  '*',
+  '/',
+  '=',
+  '\n',
+  ' ',
+  '-',
+  '#',
+  'x',
+  'q',
+  '0',
+];
+
+/**
+ * Returns a copy of each program with one or two random edits (a character
+ * deleted, inserted or replaced), to exercise the parser's error paths.
+ */
+export function corruptPrograms(programs: readonly string[], seed: number): string[] {
+  const random = makeRandom(seed);
+  return programs.map((program) => {
+    let text = program;
+    const edits = random.int(1, 2);
+    for (let k = 0; k < edits; k++) {
+      const at = random.int(0, text.length);
+      const kind = random.int(0, 2);
+      if (kind === 0) text = text.slice(0, at) + text.slice(at + 1);
+      else if (kind === 1) text = text.slice(0, at) + random.pick(SIGNIFICANT) + text.slice(at);
+      else text = text.slice(0, at) + random.pick(SIGNIFICANT) + text.slice(at + 1);
+    }
+    return text;
+  });
+}

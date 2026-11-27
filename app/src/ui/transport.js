@@ -17,7 +17,7 @@ function frame(){
   const pos=Player.position();
   if(Player.tag()==='compose'&&rollState&&rollState.ok!==false&&pos!=null){
     const box=$('#roll').parentElement,W=box.clientWidth-4,pad=6;
-    ph.style.display='block';ph.style.left=Math.round(pad+pos/Math.max(rollState.total,.1)*(W-pad*2))+'px';
+    ph.style.display='block';ph.style.left=Math.round(pad+pos/Math.max(rollState.durationSeconds,.1)*(W-pad*2))+'px';
   }else ph.style.display='none';
   g.fillStyle='#0a0c1b';g.fillRect(0,0,cv.width,cv.height);
   if(Player.s&&Snd.analyser){

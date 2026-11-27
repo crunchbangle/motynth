@@ -1,5 +1,5 @@
 import {LESSONS, REFERENCE} from '../content/lessons.js';
-import {compile} from '../engine/index.js';
+import {compile} from '../engine/index.ts';
 import {h, $, store} from './dom.js';
 import {Lib} from './library.js';
 import {Player, Snd} from './audio.js';
@@ -36,10 +36,10 @@ const Learn={
     const play=h('button',{class:'btn small','data-snip':id,onclick:()=>{
       if(Player.tag()===id){Player.stop();return;}
       msg.textContent='';
-      const res=compile(code,{instruments:Lib.names(),defaultInst:Lib.defaultName()});
-      if(!res.ok){msg.textContent='Line '+res.error.line+': '+res.error.msg;return;}
+      const res=compile(code,{instruments:Lib.names(),defaultInstrument:Lib.defaultName()});
+      if(!res.ok){msg.textContent='Line '+res.error.line+': '+res.error.message;return;}
       Snd.ensure();
-      Player.start({tag:id,events:res.events,total:res.total,loop:false,resolve:n=>Lib.inst(n)});
+      Player.start({tag:id,events:res.events,total:res.durationSeconds,loop:false,resolve:n=>Lib.inst(n)});
     }});
     const open=h('button',{class:'btn small',onclick:()=>{Compose.ta.value=code;store.set('motynth.code.v1',code);Compose.render();showTab('compose');Compose.live();}},'Open in Compose');
     return h('div',{class:'snip'},h('pre',{html:code.split('\n').map(hi).join('\n')}),h('div',{class:'snip-bar'},play,open,msg));

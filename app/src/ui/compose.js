@@ -1,4 +1,4 @@
-import {compile} from '../engine/index.js';
+import {compile} from '../engine/index.ts';
 import {EXAMPLES} from '../content/examples.js';
 import {h, $, store, debounce, fmtTime, cssv, clamp} from './dom.js';
 import {Lib, instColor} from './library.js';
@@ -7,7 +7,7 @@ import {hi} from './highlight.js';
 
 const Compose={
   last:null,prev:null,
-  compileNow(src){return compile(src,{instruments:Lib.names(),defaultInst:Lib.defaultName()});},
+  compileNow(src){return compile(src,{instruments:Lib.names(),defaultInstrument:Lib.defaultName()});},
   init(){
     this.ta=$('#code');this.hlIn=$('#hlIn');this.gut=$('#gutIn');
     const saved=store.get('motynth.code.v1');
@@ -49,8 +49,8 @@ const Compose={
     const st=$('#status');
     st.className='status'+(res.ok?'':' err');
     st.replaceChildren(h('span',{class:'dot'}),res.ok
-      ?h('span',{},'Ready. ',h('b',{},fmtTime(res.total)),' long, ',res.count+' notes, '+Math.round(res.bpm*10)/10+' bpm.')
-      :h('span',{},h('b',{},'Line '+res.error.line+': '),res.error.msg));
+      ?h('span',{},'Ready. ',h('b',{},fmtTime(res.durationSeconds)),' long, ',res.events.length+' notes, '+Math.round(res.bpm*10)/10+' bpm.')
+      :h('span',{},h('b',{},'Line '+res.error.line+': '),res.error.message));
     drawRoll(res.ok?res:null);
     return res;
   },
@@ -60,7 +60,7 @@ const Compose={
     const res=this.live();
     if(!res.ok){this.ta.focus();return;}
     if(!res.events.length){return;}
-    Player.start({tag:'compose',events:res.events,total:res.total,loop:$('#loop').checked,resolve:n=>Lib.inst(n)});
+    Player.start({tag:'compose',events:res.events,total:res.durationSeconds,loop:$('#loop').checked,resolve:n=>Lib.inst(n)});
   }
 };
 
@@ -79,10 +79,10 @@ function drawRoll(res){
     empty.hidden=false;leg.replaceChildren();stats.replaceChildren();return;
   }
   empty.hidden=true;
-  const pad=6,total=Math.max(res.total,.1);
+  const pad=6,total=Math.max(res.durationSeconds,.1);
   const pitched=[],unp=[];
-  for(const e of res.events){const ins=Lib.inst(e.inst);((ins&&!ins.follow)||e.hit&&!(ins&&ins.follow)?unp:pitched).push(e);}
-  const unpNames=[...new Set(unp.map(e=>e.inst))];
+  for(const e of res.events){const ins=Lib.inst(e.instrument);((ins&&!ins.follow)||e.isHit&&!(ins&&ins.follow)?unp:pitched).push(e);}
+  const unpNames=[...new Set(unp.map(e=>e.instrument))];
   const bandRow=Math.min(10,Math.max(5,Math.floor((H*.38)/Math.max(1,unpNames.length))));
   const bandH=unpNames.length?unpNames.length*bandRow+6:0;
   const topH=H-bandH-pad*2;
@@ -91,23 +91,23 @@ function drawRoll(res){
   for(let t=0;t<total;t+=spw)g.fillRect(Math.round(pad+t/total*(W-pad*2)),0,1,H);
   if(bandH){g.fillRect(0,H-bandH-pad+2,W,1);}
   if(pitched.length){
-    let lo=1e9,hi_=-1e9;for(const e of pitched){lo=Math.min(lo,e.n);hi_=Math.max(hi_,e.n);}
+    let lo=1e9,hi_=-1e9;for(const e of pitched){lo=Math.min(lo,e.step);hi_=Math.max(hi_,e.step);}
     const rows=hi_-lo+3;const rh=clamp(topH/rows,2,14);const used=rh*rows;const oy=pad+(topH-used)/2;
     for(const e of pitched){
-      const x=pad+e.t/total*(W-pad*2),w=Math.max(2,e.d/total*(W-pad*2)-1);
-      g.fillStyle=instColor(e.inst);
-      g.fillRect(Math.round(x),Math.round(oy+(hi_-e.n+1)*rh),Math.round(w),Math.max(2,Math.floor(rh)-1));
+      const x=pad+e.start/total*(W-pad*2),w=Math.max(2,e.duration/total*(W-pad*2)-1);
+      g.fillStyle=instColor(e.instrument);
+      g.fillRect(Math.round(x),Math.round(oy+(hi_-e.step+1)*rh),Math.round(w),Math.max(2,Math.floor(rh)-1));
     }
   }
   const by0=H-bandH-pad+5;
   for(const e of unp){
-    const row=unpNames.indexOf(e.inst);
-    const x=pad+e.t/total*(W-pad*2);
-    g.fillStyle=instColor(e.inst);
-    g.fillRect(Math.round(x),by0+row*bandRow,Math.max(2,Math.min(6,Math.round(e.d/total*(W-pad*2)))),Math.max(2,bandRow-2));
+    const row=unpNames.indexOf(e.instrument);
+    const x=pad+e.start/total*(W-pad*2);
+    g.fillStyle=instColor(e.instrument);
+    g.fillRect(Math.round(x),by0+row*bandRow,Math.max(2,Math.min(6,Math.round(e.duration/total*(W-pad*2)))),Math.max(2,bandRow-2));
   }
-  leg.replaceChildren(...res.used.map(n=>h('span',{},h('i',{style:'background:'+instColor(n)}),n)));
-  stats.replaceChildren(h('span',{},'Length ',h('b',{},fmtTime(res.total))),h('span',{},'Notes ',h('b',{},res.count)),h('span',{},'Tempo ',h('b',{},Math.round(res.bpm*10)/10)));
+  leg.replaceChildren(...res.instrumentsUsed.map(n=>h('span',{},h('i',{style:'background:'+instColor(n)}),n)));
+  stats.replaceChildren(h('span',{},'Length ',h('b',{},fmtTime(res.durationSeconds))),h('span',{},'Notes ',h('b',{},res.events.length)),h('span',{},'Tempo ',h('b',{},Math.round(res.bpm*10)/10)));
 }
 
 export {Compose, rollState, drawRoll};
