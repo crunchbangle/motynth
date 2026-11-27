@@ -22,11 +22,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
-    "noImplicitReturns": true,
-
-    // The UI is still partly JavaScript while it is being rewritten.
-    "allowJs": true,
-    "checkJs": false
+    "noImplicitReturns": true
   },
   "include": ["app/src", "test", "vite.config.ts", "vitest.config.ts"]
 }

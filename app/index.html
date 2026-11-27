@@ -1,82 +1,19 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Motynth</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Pixelify+Sans:wght@500;700&display=swap">
-<link rel="stylesheet" href="styles.css">
-</head>
-<body>
-<header class="top">
-  <div class="brand"><span id="logo"></span><h1 class="name">Motynth</h1></div>
-  <div class="tabs" role="tablist" aria-label="Sections">
-    <button class="tab" role="tab" id="tab-compose" aria-selected="true" aria-controls="view-compose">Compose</button>
-    <button class="tab" role="tab" id="tab-sounds" aria-selected="false" aria-controls="view-sounds">Sounds</button>
-    <button class="tab" role="tab" id="tab-learn" aria-selected="false" aria-controls="view-learn">Learn</button>
-  </div>
-  <div class="transport">
-    <label><input type="checkbox" id="loop"> Loop</label>
-    <canvas id="scope" width="48" height="16" aria-hidden="true"></canvas>
-    <button class="btn" id="playbtn" aria-pressed="false"></button>
-  </div>
-</header>
-<main>
-  <section id="view-compose" class="compose" role="tabpanel" aria-labelledby="tab-compose">
-    <div>
-      <div class="bar">
-        <select id="examples" aria-label="Load an example"><option value="">Load an example…</option></select>
-        <button class="btn small" id="restore" hidden>Restore previous text</button>
-        <span class="grow"></span>
-        <span class="hint">Ctrl+Enter plays</span>
-      </div>
-      <div class="editor">
-        <div class="gutter" aria-hidden="true"><div id="gutIn"></div></div>
-        <div class="edwrap">
-          <div class="hl" aria-hidden="true"><div class="hl-in" id="hlIn"></div></div>
-          <textarea class="code" id="code" spellcheck="false" autocomplete="off" autocapitalize="off" wrap="off" aria-label="Composition code"></textarea>
-        </div>
-      </div>
-      <div class="status" id="status" role="status" aria-live="polite"></div>
-    </div>
-    <div class="panel">
-      <h2>Score</h2>
-      <div class="roll-wrap">
-        <canvas id="roll" aria-label="Piano roll of the composition"></canvas>
-        <div id="playhead"></div>
-        <div class="roll-empty" id="rollEmpty">Your notes appear here once the code can play.</div>
-      </div>
-      <div class="legend" id="legend"></div>
-      <div class="stats" id="stats"></div>
-      <p class="hint" style="margin-top:14px">New here? The Learn tab has six short lessons, each with snippets you can play.</p>
-    </div>
-  </section>
-
-  <section id="view-sounds" role="tabpanel" aria-labelledby="tab-sounds" hidden>
-    <div class="panel testbar">
-      <button class="btn primary" id="testPlay"></button>
-      <input type="text" id="testMotif" spellcheck="false" aria-label="Test motif">
-      <select id="testPreset" aria-label="Test motif presets"></select>
-      <label>Octave <input type="number" class="oct" id="testOct" value="0" min="-3" max="3" step="1"></label>
-      <label><input type="checkbox" id="testAuto" checked> Play after each change</label>
-      <span class="warn" id="testMsg" role="alert"></span>
-    </div>
-    <div class="sounds">
-      <div class="panel" id="lists"></div>
-      <div class="panel" id="instEd"></div>
-      <div class="panel wave-col" id="waveEd"></div>
-    </div>
-  </section>
-
-  <section id="view-learn" role="tabpanel" aria-labelledby="tab-learn" hidden>
-    <div class="learn">
-      <nav class="panel lessons" id="lessonNav" aria-label="Lessons"></nav>
-      <article id="lesson" class="lesson"></article>
-    </div>
-  </section>
-</main>
-<script type="module" src="src/ui/main.js"></script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Motynth</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Pixelify+Sans:wght@500;700&display=swap"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="src/ui/main.tsx"></script>
+  </body>
 </html>
