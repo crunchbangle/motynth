@@ -5,35 +5,46 @@ A small music composition tool built around two ideas: **synth** and **motif**.
 - **Sounds are drawn.** You paint single-cycle waveforms on a pixel grid (8 to 64 columns, 2 to 16 levels), then build instruments from them. The limits are deliberate: the crunch is the charm.
 - **Music is text.** A tiny language lets you name notes, motifs, sections and whole pieces, and combine them with scopes (tuning, mode, tempo) and modifiers (transpose, reverse, fit, loop).
 
-Everything runs in the browser with the Web Audio API. There is no build step and no dependencies.
+Everything runs in the browser with the Web Audio API. It is written in TypeScript and built with Vite.
 
 **Try it:** <https://crunchbangle.github.io/motynth/>
 
-## Run it locally
+## Develop
 
-The app is plain HTML, CSS and ES modules in `app/`. Browsers don't load modules from `file://`, so serve the folder with any static server:
+You need Node 24 (see `.nvmrc`).
 
 ```
-npx serve app
-# or
-python -m http.server -d app
+npm install
+npm run dev          # serve the app with live reload
+npm run check        # formatting, type check and tests: what CI runs
+npm run build        # build the site into dist/
 ```
+
+| Script | What it does |
+| --- | --- |
+| `npm run dev` | Serves `app/` at a local address with live reload |
+| `npm test` | Runs the tests once (Vitest); `npm run test:watch` keeps running them |
+| `npm run typecheck` | Type-checks everything with `tsc` (strict) |
+| `npm run format` | Formats with Prettier; `format:check` only checks |
+| `npm run build` | Builds the site into `dist/` |
+| `npm run preview` | Serves the built `dist/` |
 
 Fonts load from Google Fonts (Pixelify Sans, Atkinson Hyperlegible, JetBrains Mono) and fall back to system fonts offline.
 
-Your code and sounds are saved in the browser's `localStorage`.
+Your code and sounds are saved in the browser's `localStorage`. Sounds saved by the original prototype are converted the first time the app loads.
 
 ## Tests
 
-```
-npm test
-```
+Tests live in `test/` and run with Vitest. Besides ordinary behaviour tests, two kinds compare the app with the original prototype in `prototype/motynth.html`, which is never edited:
 
-The engine has no browser dependencies, so its tests run in Node (CI uses version 22) with the built-in test runner. There is nothing to install.
+- **Engine parity** (`test/parity.test.ts`) loads the prototype's engine and requires identical results (notes, times, frequencies, error messages and positions) on every lesson and example, about 90 edge cases, 600 random programs and a randomly corrupted copy of each.
+- **Sound parity** (`test/sound/`) runs the prototype's wave, buffer and envelope code and requires the same samples and shapes.
+
+Tests use Vitest's global `test` and `expect` rather than importing them: on Windows, importing `vitest` from a working directory with a lowercase drive letter (as VS Code uses) loads it twice and finds no tests.
 
 ## Deploy
 
-Every push to `main` deploys `app/` to GitHub Pages (`.github/workflows/pages.yml`). Pushes and pull requests also run the tests (`.github/workflows/ci.yml`).
+`.github/workflows/ci.yml` runs on every push and pull request: formatting, type check, tests, then build. On a push to `main`, if all of that passes, it deploys `dist/` to GitHub Pages.
 
 ## The app
 
@@ -95,37 +106,35 @@ The Learn tab has the full walkthrough and a reference table.
 
 ```
 app/
-  index.html          markup only
+  index.html
   styles.css
   src/
-    engine/           no browser dependencies; runs in Node
-      fraction.js     exact fractions
-      constants.js    duration units, keywords, built-in modes, limits, MotError
-      parser.js       scannerless recursive-descent parser
-      pitch.js        register, tuning, mode and degree math
-      compile.js      evaluator: program -> timed events
-      index.js        public entry point
-    content/
-      lessons.js      lessons and the reference table (plain data)
-      examples.js     the Compose example menu
-    ui/
-      main.js         entry point: boot
-      dom.js          DOM and storage helpers
-      library.js      sound library and persistence
-      audio.js        Web Audio voices and the look-ahead scheduler
-      highlight.js    syntax highlighting
-      compose.js      code editor and piano roll
-      transport.js    play button, oscilloscope, playhead
-      wave-draw.js    wave, envelope and thumbnail canvases
-      sounds.js       instrument and wave editors
-      test-bar.js     the Sounds tab test bar
-      learn.js        the tutorial
-      tabs.js         tab switching
-test/                 engine tests (node:test)
-prototype/            the original single-file prototype, kept for reference
+    engine/              the language; no browser dependencies
+      index.ts           public API: compile(), parseProgram(), types
+      parser.ts          text -> syntax tree (ast.ts)
+      evaluator.ts       syntax tree -> timed notes (music.ts)
+      scope.ts           tuning, mode, names, root, tempo, transposition
+      pitch.ts           degree and step arithmetic
+      fraction.ts        exact time arithmetic
+      language.ts        keywords, duration letters, built-in modes, limits
+      compile.ts         compile(): ties it together and converts to seconds
+    content/             lessons, examples and the quick reference (data)
+    sound/               sounds and audio; no React
+      wave.ts            waves and grid edits
+      instrument.ts      instruments, envelopes, name checks
+      library.ts         the sound library and changes to it
+      persistence.ts     saving and loading (and converting old saves)
+      buffers.ts         waves -> sample buffers
+      envelope.ts        envelope shapes
+      voice.ts           one note as Web Audio nodes
+      player.ts          real-time scheduling with look-ahead
+      audio-engine.ts    the AudioContext and output chain
+    ui/                  the interface (being rewritten in React)
+test/                    Vitest tests, mirroring app/src
+prototype/               the original single-file prototype, kept as a reference
 ```
 
-Audio is scheduled in real time with a short look-ahead. Each note is a few Web Audio nodes (buffer sources, gains) with automated envelopes.
+A program goes from text to sound in four steps. `parseProgram` turns the text into a syntax tree. The `Evaluator` turns that into notes timed in exact fractions of a whole note. `compile` converts those to seconds and frequencies. The `Player` then schedules them in real time: every 50 ms it schedules the notes due in the next 0.8 s, each as a few Web Audio nodes (buffer sources and gains) with automated envelopes.
 
 ## Todo
 
@@ -165,7 +174,7 @@ Audio is scheduled in real time with a short look-ahead. Each note is a few Web 
 ### Project and app
 - [ ] Save and open project files (code plus sounds) and share by link.
 - [ ] Export to WAV (offline render) and to MIDI.
-- [x] Split the single file into modules (native ES modules, so no build script was needed), and add the engine tests (Node) to the repo.
+- [x] Split the single file into modules with a build, and add the engine tests to the repo.
 - [x] Unit tests for the parser and evaluator: scoping, `fit`/`loop`/`sets-length`, exact-fraction timing.
 - [ ] Performance: cache compiled results, and pre-render long pieces.
 
