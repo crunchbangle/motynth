@@ -1,4 +1,5 @@
-import {LESSONS, REFERENCE} from '../content/lessons.js';
+import {LESSONS} from '../content/lessons.ts';
+import {REFERENCE} from '../content/reference.ts';
 import {compile} from '../engine/index.ts';
 import {h, $, store} from './dom.js';
 import {Lib} from './library.js';
@@ -17,13 +18,13 @@ const Learn={
     const art=$('#lesson');art.replaceChildren();
     const L=LESSONS[this.idx];
     art.append(h('h2',{},L.title));
-    if(L.ref){
+    if(L.isReference){
       art.append(h('p',{},'Everything the language understands, in one place.'));
-      const ctx={instruments:Lib.names()};
-      for(const [grp,rows] of REFERENCE)art.append(h('h3',{},grp),h('table',{class:'reftbl'},h('tbody',{},rows.map(r=>h('tr',{},h('td',{},r[0]),h('td',{},typeof r[1]==='function'?r[1](ctx):r[1]))))));
+      const ctx={instruments:[...Lib.names()]};
+      for(const g of REFERENCE)art.append(h('h3',{},g.title),h('table',{class:'reftbl'},h('tbody',{},g.rows.map(r=>h('tr',{},h('td',{},r.example),h('td',{},typeof r.meaning==='function'?r.meaning(ctx):r.meaning))))));
     }
     L.blocks.forEach((b,k)=>{
-      if(b.p)art.append(h('p',{},b.p));
+      if(b.type==='text')art.append(h('p',{},b.text));
       else if(b.code)art.append(this.snippet(b.code,L.id+'-'+k));
     });
     art.append(h('div',{class:'pager'},

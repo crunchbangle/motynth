@@ -1,5 +1,5 @@
 import {compile} from '../engine/index.ts';
-import {EXAMPLES} from '../content/examples.js';
+import {EXAMPLES} from '../content/examples.ts';
 import {h, $, store, debounce, fmtTime, cssv, clamp} from './dom.js';
 import {Lib, instColor} from './library.js';
 import {Player, Snd} from './audio.js';
