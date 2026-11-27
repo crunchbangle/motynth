@@ -1,4 +1,4 @@
-# Motynth
+<h1><img src="pics/logo.png" alt="Motynth" width="360"></h1>
 
 A small music composition tool built around two ideas: **synth** and **motif**.
 
@@ -8,6 +8,11 @@ A small music composition tool built around two ideas: **synth** and **motif**.
 Everything runs in the browser with the Web Audio API. It is written in TypeScript, with a React interface, and built with Vite.
 
 **Try it:** <https://crunchbangle.github.io/motynth/>
+
+<p>
+  <img src="pics/composition-editor.png" alt="The Compose tab's code editor, showing a piece with a verse, bridge and outro, with syntax colouring and a status line: Ready, 0:26 long, 165 notes, 110 bpm" width="49%">
+  <img src="pics/piano-roll.png" alt="The score for that piece: a piano roll with bass and pluck notes by pitch, and kick, hat and snare hits in bands along the bottom" width="49%">
+</p>
 
 ## Develop
 
@@ -70,6 +75,11 @@ Audio quality can't be tested automatically; listen when you change sound code.
   - *Morph:* wave A blends toward wave B over the note, driven by its own attack/decay/sustain/release envelope.
 - **Envelopes:** volume ADSR, morph ADSR, and a pitch envelope (start offset plus glide time) for kicks and toms.
 - **Follow pitch:** turn it off and the instrument always plays at its reference pitch (drums).
+
+<p>
+  <img src="pics/wave-editor.png" alt="The wave editor: a 32 by 16 pixel grid with an organ-like waveform drawn on it, a pink silence line through the middle, and buttons to start from a shape or flip, mirror and shift it" width="49%">
+  <img src="pics/instrument-editor.png" alt="The instrument editor for 'pulse': sound type Single, Pulse 25% as wave A, a volume slider, the volume envelope as a picture with attack, decay, sustain and release sliders, and the pitch envelope" width="49%">
+</p>
 
 ## The language in one screen
 
@@ -148,6 +158,7 @@ app/
   public/                copied as is (favicon)
 test/                    Vitest tests, mirroring app/src
 e2e/                     Playwright browser tests
+pics/                    pictures for this README
 prototype/               the original single-file prototype, kept as a reference
 ```
 
@@ -159,7 +170,7 @@ A program goes from text to sound in four steps. `parseProgram` turns the text i
 
 ### Verify first
 - [ ] Listen-test every starter instrument in real browsers (Chrome, Firefox, Safari) and tune the kick, snare, hat and tom.
-- [ ] Check the code editor's highlight layer stays aligned with the textarea across browsers, fonts and zoom levels.
+- [ ] Check the code editor's highlight layer stays aligned with the textarea in Firefox and Safari, and at other zoom levels. (A browser test checks it in Chromium.)
 - [ ] Test on mobile: header wrapping, wave drawing by touch, the on-screen keyboard in the editor.
 
 ### Language
