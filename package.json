@@ -14,13 +14,15 @@
     "test:watch": "vitest",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "npm run format:check && npm run typecheck && npm test"
+    "check": "npm run format:check && npm run typecheck && npm test",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "react": "19.1.10",
     "react-dom": "19.1.10"
   },
   "devDependencies": {
+    "@playwright/test": "1.65.0",
     "@testing-library/dom": "10.4.2",
     "@testing-library/react": "16.3.3",
     "@testing-library/user-event": "14.6.10",
