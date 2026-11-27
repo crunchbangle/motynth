@@ -4,6 +4,7 @@ import { useDebouncedValue } from './common/hooks.ts';
 import { ComposeTab } from './compose/ComposeTab.tsx';
 import { LearnTab } from './learn/LearnTab.tsx';
 import { Header, TABS, type TabName } from './shell/Header.tsx';
+import { SoundsTab } from './sounds/SoundsTab.tsx';
 import { useAudio, usePlay, usePlayingId } from './state/audio.tsx';
 import { compileWithLibrary, useSounds } from './state/sounds.tsx';
 import { browserStorage, STORAGE_KEYS } from './state/storage.ts';
@@ -104,7 +105,7 @@ export function App() {
           aria-labelledby="tab-sounds"
           hidden={tab !== 'sounds'}
         >
-          <p className="hint">The Sounds tab is being rebuilt.</p>
+          <SoundsTab active={tab === 'sounds'} />
         </section>
         <section
           id="view-learn"

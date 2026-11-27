@@ -168,3 +168,56 @@ export function prototypeRollDrawing(
   drawRoll({ ok: true, ...piece });
   return calls;
 }
+
+// ---------------------------------------------------------------------------
+// Wave and envelope pictures
+
+/** A recorded canvas call: the method, the style at the time, and its arguments. */
+export type CanvasCall = [method: string, style: unknown, ...args: number[]];
+
+/** A fake 2D canvas that records drawing calls. */
+export function recordingCanvas() {
+  const calls: CanvasCall[] = [];
+  const g = {
+    fillStyle: '' as unknown,
+    strokeStyle: '' as unknown,
+    lineWidth: 1,
+    fillRect(x: number, y: number, w: number, h: number) {
+      calls.push(['fillRect', this.fillStyle, x, y, w, h]);
+    },
+    beginPath() {
+      calls.push(['beginPath', this.strokeStyle, this.lineWidth]);
+    },
+    moveTo(x: number, y: number) {
+      calls.push(['moveTo', this.strokeStyle, x, y]);
+    },
+    lineTo(x: number, y: number) {
+      calls.push(['lineTo', this.strokeStyle, x, y]);
+    },
+    stroke() {
+      calls.push(['stroke', this.strokeStyle, this.lineWidth]);
+    },
+  };
+  const canvas = { width: 0, height: 0, getContext: () => g };
+  return { canvas, g, calls };
+}
+
+export interface PrototypePictures {
+  drawThumb(canvas: unknown, wave: Record<string, unknown>): void;
+  drawEnv(canvas: unknown, envelope: { a: number; d: number; s: number; r: number }): void;
+  drawWave(canvas: unknown, wave: Record<string, unknown>): void;
+}
+
+/** The prototype's picture functions. Colours come out as CSS variable names. */
+export function loadPrototypePictures(): PrototypePictures {
+  const source = prototypeSource();
+  const pictures = between(
+    source,
+    '/* =====================  sounds: shared drawing',
+    '/* =====================  sounds: test bar',
+  );
+  return run<PrototypePictures>(pictures, '{ drawThumb, drawEnv, drawWave }', {
+    cssv: (name: string) => name,
+    clamp: (v: number, a: number, b: number) => Math.min(b, Math.max(a, v)),
+  });
+}
