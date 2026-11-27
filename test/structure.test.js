@@ -72,6 +72,18 @@ test('play and motif keywords', () => {
   assert.equal(ok('motif a = [1 2]\nplay a, a').count, 4);
 });
 
+// The Names section of the reference warns about these.
+test('inside a motif, x, r and n3 are a hit, a rest and a tuning step, even if defined as names', () => {
+  const r = ok('x = [5]\nr = [5]\nn3 = [5]\n[x r n3]');
+  assert.deepEqual(r.events.map(e => e.hit), [true, false]);
+  assert.deepEqual(times(r), [0, 1]);
+  assert.equal(r.events[1].n, 3);
+});
+
+test('names may contain - and _, and modifier words can be names', () => {
+  assert.equal(ok('my-tune = [1 2]\n_b = my-tune\nrev = _b\npulse: [rev], rev').count, 4);
+});
+
 test('comments are ignored', () => {
   assert.equal(ok('// hello\n[1 2] // trailing\n').count, 2);
 });

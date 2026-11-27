@@ -1,6 +1,7 @@
 import {$, store} from './dom.js';
 import {Compose} from './compose.js';
 import {renderSounds} from './sounds.js';
+import {Learn} from './learn.js';
 
 function showTab(name){
   for(const t of ['compose','sounds','learn']){
@@ -9,6 +10,7 @@ function showTab(name){
   }
   if(name==='compose'){Compose.render();Compose.live();}
   if(name==='sounds')renderSounds();
+  if(name==='learn')Learn.render();
   store.set('motynth.tab',name);
 }
 

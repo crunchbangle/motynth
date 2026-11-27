@@ -1,3 +1,5 @@
+import {BUILTIN_MODES, RESERVED} from '../engine/index.js';
+
 const LESSONS=[
 {id:'first',title:'Your first notes',blocks:[
  {p:'A Motynth piece is text. Write an instrument name, a colon, then a motif in square brackets. Numbers are degrees of the current scale: 1 is the tonic, 2 the next note up, and so on. Degree 8 wraps around to the tonic one octave higher.'},
@@ -54,7 +56,7 @@ const REFERENCE=[
   ['tuning 12 of 2','Notes per register, and the register ratio'],
   ['tuning 13','Change the note count, keep the ratio'],
   ['register 3','Change only the register ratio'],
-  ['mode minor','Pick a mode by name'],
+  ['mode minor','Pick a mode by name. Built in: '+Object.keys(BUILTIN_MODES).join(', ')],
   ['mode [0 2 3 5 7 8 10]','Or write the steps yourself'],
   ['mode name = [ ... ]','Define a named mode'],
   ['names [C Db D ...]','Name each step of the tuning'],
@@ -65,7 +67,7 @@ const REFERENCE=[
   ['n7','Step 7 of the tuning, ignoring the mode'],
   ['3^1  3^-2','Up or down registers'],
   ['3#  3b','One tuning step sharp or flat'],
-  ['C  Eb^1','A name from names'],
+  ['C  Eb^1','A note name set by names; ^ shifts its register'],
   ['(1 3 5)','A chord'],
   ['.  r  rest','A rest'],
   ['_','Tie: extend the previous note'],
@@ -75,7 +77,7 @@ const REFERENCE=[
   ['other_motif','Splice in another motif; give it :dur to fit it']]],
  ['Modifiers',[
   ['+2  -1','Tonal shift in degrees of the mode'],
-  ['~3','Chromatic shift in tuning steps'],
+  ['~3  ~-2','Chromatic shift in tuning steps'],
   ['^1  ^-1','Shift by registers'],
   ['rev  inv','Reverse; invert within the mode'],
   ['x3','Repeat'],
@@ -91,7 +93,13 @@ const REFERENCE=[
   ['length 2w','Fix the length of a section'],
   ['with mode minor { ... }','Scope settings to a block'],
   ['name = ...','Name any composition'],
-  ['piece = ...','The thing that plays (else the last line)']]]
+  ['piece = ...','The thing that plays (else the last line)']]],
+ ['Names',[
+  ['my-tune  bass_2','Letters, digits, _ and -, starting with a letter or _'],
+  ['with  rest  ...','Keywords can’t be names: '+[...RESERVED].join(', ')],
+  ['x  r  n3','Inside a motif these mean a hit, a rest and a tuning step, so a motif with one of these names can’t be used inside another motif'],
+  // A function is filled in when the reference is shown, with the current instruments.
+  ['inst:',ctx=>'Your instruments: '+[...ctx.instruments].join(', ')+'. Add or rename them in the Sounds tab.']]]
 ];
 
 export {LESSONS, REFERENCE};

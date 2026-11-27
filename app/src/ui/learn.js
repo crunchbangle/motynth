@@ -19,7 +19,8 @@ const Learn={
     art.append(h('h2',{},L.title));
     if(L.ref){
       art.append(h('p',{},'Everything the language understands, in one place.'));
-      for(const [grp,rows] of REFERENCE)art.append(h('h3',{},grp),h('table',{class:'reftbl'},h('tbody',{},rows.map(r=>h('tr',{},h('td',{},r[0]),h('td',{},r[1]))))));
+      const ctx={instruments:Lib.names()};
+      for(const [grp,rows] of REFERENCE)art.append(h('h3',{},grp),h('table',{class:'reftbl'},h('tbody',{},rows.map(r=>h('tr',{},h('td',{},r[0]),h('td',{},typeof r[1]==='function'?r[1](ctx):r[1]))))));
     }
     L.blocks.forEach((b,k)=>{
       if(b.p)art.append(h('p',{},b.p));
