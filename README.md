@@ -159,7 +159,7 @@ A program goes from text to sound in four steps. `parseProgram` turns the text i
 
 ### Verify first
 - [ ] Listen-test every starter instrument in real browsers (Chrome, Firefox, Safari) and tune the kick, snare, hat and tom.
-- [ ] Check the code editor's highlight layer stays aligned with the textarea across browsers, fonts and zoom levels.
+- [ ] Check the code editor's highlight layer stays aligned with the textarea in Firefox and Safari, and at other zoom levels. (A browser test checks it in Chromium.)
 - [ ] Test on mobile: header wrapping, wave drawing by touch, the on-screen keyboard in the editor.
 
 ### Language
