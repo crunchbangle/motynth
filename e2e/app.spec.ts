@@ -39,6 +39,28 @@ test('shows errors as you type, and clears them when fixed', async ({ page }) =>
   await expect(status(page)).toHaveText('Ready. 0:03 long, 5 notes, 120 bpm.');
 });
 
+test('the highlighted code lines up with the text being edited', async ({ page }) => {
+  // The editor is a transparent textarea over a highlighted copy of the text.
+  // If the two lay text out differently, the cursor and selection drift away
+  // from the characters you see.
+  await page.goto('/');
+  const line = 'tempo 110  pluck: [1:q 3 5:h rest:q] sets-length // a long-ish line';
+  await editor(page).fill(line);
+  const widths = await page.evaluate((text) => {
+    const textarea = document.querySelector('textarea.code') as HTMLTextAreaElement;
+    const shown = document.querySelector('.hl-in .ln') as HTMLElement;
+    // Width of the text as the textarea lays it out (its font, unstyled).
+    const g = document.createElement('canvas').getContext('2d') as CanvasRenderingContext2D;
+    const style = getComputedStyle(textarea);
+    g.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+    // Width of the visible, highlighted text.
+    const range = document.createRange();
+    range.selectNodeContents(shown);
+    return { editing: g.measureText(text).width, shown: range.getBoundingClientRect().width };
+  }, line);
+  expect(Math.abs(widths.shown - widths.editing)).toBeLessThan(1);
+});
+
 test('plays and stops with real Web Audio', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Play' }).click();
