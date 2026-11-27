@@ -1,0 +1,32 @@
+{
+  // Type-checks everything: app source, tests and scripts. `npm run build`
+  // uses tsconfig.build.json, which emits only the app.
+  "compilerOptions": {
+    "target": "es2022",
+    "lib": ["es2022", "dom", "dom.iterable"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "types": ["node"],
+
+    // Source imports use .ts extensions so Node can run tests on the
+    // sources directly; the build rewrites them to .js.
+    "rewriteRelativeImportExtensions": true,
+    // Only syntax that Node can strip (no enums, namespaces, etc.).
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+
+    // The app is still partly JavaScript while it is being converted.
+    "allowJs": true,
+    "checkJs": false,
+
+    "noEmit": true
+  },
+  "include": ["app/src", "test", "scripts"]
+}

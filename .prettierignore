@@ -1,0 +1,11 @@
+dist/
+node_modules/
+package-lock.json
+prototype/
+*.md
+
+# Still-unconverted JavaScript and markup; removed as each part is rewritten.
+app/**/*.js
+app/index.html
+app/styles.css
+test/**/*.js

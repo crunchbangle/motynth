@@ -1,0 +1,11 @@
+{
+  // Compiles the app for the browser into dist/. See scripts/build.ts.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": [],
+    "noEmit": false,
+    "rootDir": "app/src",
+    "outDir": "dist/src"
+  },
+  "include": ["app/src"]
+}
