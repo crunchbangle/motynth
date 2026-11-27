@@ -1,19 +1,21 @@
 {
-  // Type-checks everything: app source, tests and scripts. `npm run build`
-  // uses tsconfig.build.json, which emits only the app.
+  // Type-checks everything: app source, tests and config. Vite does the
+  // actual compiling (see vite.config.ts), so tsc only checks types.
   "compilerOptions": {
     "target": "es2022",
     "lib": ["es2022", "dom", "dom.iterable"],
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "types": ["node"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "types": ["node", "vite/client", "vitest/globals"],
+    "noEmit": true,
 
-    // Source imports use .ts extensions so Node can run tests on the
-    // sources directly; the build rewrites them to .js.
-    "rewriteRelativeImportExtensions": true,
-    // Only syntax that Node can strip (no enums, namespaces, etc.).
+    // Imports name the real file (`./parser.ts`), which Vite and Vitest resolve.
+    "allowImportingTsExtensions": true,
+    // Only syntax that can simply be stripped (no enums, namespaces, etc.).
     "erasableSyntaxOnly": true,
     "verbatimModuleSyntax": true,
+    "isolatedModules": true,
 
     "strict": true,
     "noUnusedLocals": true,
@@ -22,11 +24,9 @@
     "noImplicitOverride": true,
     "noImplicitReturns": true,
 
-    // The app is still partly JavaScript while it is being converted.
+    // The UI is still partly JavaScript while it is being rewritten.
     "allowJs": true,
-    "checkJs": false,
-
-    "noEmit": true
+    "checkJs": false
   },
-  "include": ["app/src", "test", "scripts"]
+  "include": ["app/src", "test", "vite.config.ts", "vitest.config.ts"]
 }

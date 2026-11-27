@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict';
-import { test } from 'node:test';
 import { durations, ok, starts, steps } from './helpers.ts';
 
 test('+n is a tonal shift within the mode', () => {

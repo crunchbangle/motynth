@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict';
-import { test } from 'node:test';
 import { EXAMPLES } from '../app/src/content/examples.ts';
 import { LESSONS } from '../app/src/content/lessons.ts';
 import { REFERENCE } from '../app/src/content/reference.ts';

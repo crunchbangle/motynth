@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict';
-import { test } from 'node:test';
 import { ok, steps } from './helpers.ts';
 
 const ROOT = 261.6256;

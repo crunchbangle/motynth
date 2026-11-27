@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict';
-import { test } from 'node:test';
 import type { CompiledPiece } from '../app/src/engine/index.ts';
 import { durations, ok, starts, steps } from './helpers.ts';
 

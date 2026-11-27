@@ -4,7 +4,6 @@
 // hand-picked edge cases, and on a few hundred random programs.
 
 import assert from 'node:assert/strict';
-import { test } from 'node:test';
 import { compile, type CompileResult } from '../app/src/engine/index.ts';
 import { STARTER } from './helpers.ts';
 import { loadPrototype } from './support/prototype.ts';

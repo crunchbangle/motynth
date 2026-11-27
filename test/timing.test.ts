@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict';
-import { test } from 'node:test';
 import { durations, ok, starts } from './helpers.ts';
 
 // At the default tempo of 120 (quarter = 1 beat), a whole note lasts 2 seconds.
