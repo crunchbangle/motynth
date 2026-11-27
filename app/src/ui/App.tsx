@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { EXAMPLES } from '../content/examples.ts';
+import { useDebouncedValue } from './common/hooks.ts';
+import { ComposeTab } from './compose/ComposeTab.tsx';
 import { LearnTab } from './learn/LearnTab.tsx';
 import { Header, TABS, type TabName } from './shell/Header.tsx';
 import { useAudio, usePlay, usePlayingId } from './state/audio.tsx';
@@ -8,6 +10,9 @@ import { browserStorage, STORAGE_KEYS } from './state/storage.ts';
 
 /** The id Compose playback uses, so the header knows when it is playing. */
 export const COMPOSE_PLAYBACK = 'compose';
+
+/** Errors and the score update this long after typing stops. */
+const LIVE_COMPILE_DELAY_MS = 220;
 
 function initialTab(): TabName {
   const saved = browserStorage.getItem(STORAGE_KEYS.tab);
@@ -28,6 +33,13 @@ export function App() {
   const [tab, setTab] = useState(initialTab);
   const [code, setCode] = useState(initialCode);
   const [loop, setLoop] = useState(false);
+  const editorRef = useRef<HTMLTextAreaElement>(null);
+
+  const settledCode = useDebouncedValue(code, LIVE_COMPILE_DELAY_MS);
+  const liveResult = useMemo(
+    () => compileWithLibrary(settledCode, library),
+    [settledCode, library],
+  );
 
   useEffect(() => browserStorage.setItem(STORAGE_KEYS.tab, tab), [tab]);
   useEffect(() => browserStorage.setItem(STORAGE_KEYS.code, code), [code]);
@@ -41,10 +53,14 @@ export function App() {
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [player]);
 
-  /** Plays the Compose code from the start. */
+  /** Plays the Compose code from the start; with errors, puts the cursor in the editor instead. */
   const playCompose = useCallback(() => {
     const result = compileWithLibrary(code, library);
-    if (result.ok && result.events.length > 0) play(COMPOSE_PLAYBACK, result, { loop });
+    if (!result.ok) {
+      editorRef.current?.focus();
+      return;
+    }
+    if (result.events.length > 0) play(COMPOSE_PLAYBACK, result, { loop });
   }, [code, library, loop, play]);
 
   const openInCompose = useCallback((snippet: string) => {
@@ -73,7 +89,14 @@ export function App() {
           aria-labelledby="tab-compose"
           hidden={tab !== 'compose'}
         >
-          <p className="hint">The Compose tab is being rebuilt.</p>
+          <ComposeTab
+            code={code}
+            onCodeChange={setCode}
+            result={liveResult}
+            onPlay={playCompose}
+            playbackId={COMPOSE_PLAYBACK}
+            editorRef={editorRef}
+          />
         </section>
         <section
           id="view-sounds"

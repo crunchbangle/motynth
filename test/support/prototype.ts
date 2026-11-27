@@ -19,8 +19,8 @@ function between(source: string, start: string, end: string): string {
   return source.slice(from, to);
 }
 
-function run<T>(code: string, exportExpression: string): T {
-  const sandbox = { module: { exports: {} as T } };
+function run<T>(code: string, exportExpression: string, globals: object = {}): T {
+  const sandbox = { ...globals, module: { exports: {} as T } };
   runInNewContext(`${code}\nmodule.exports = ${exportExpression};`, sandbox, {
     filename: 'prototype/motynth.html',
   });
@@ -107,4 +107,64 @@ export function loadPrototypeSound(): PrototypeSoundExports {
     helpers + resample,
     '{ shape, starterLibrary, uniqueName, resampleData, buildBuffer, adsrPts }',
   );
+}
+
+// ---------------------------------------------------------------------------
+// Piano roll
+
+/** One fillRect call: [fillStyle, x, y, width, height]. */
+export type FillCall = [unknown, number, number, number, number];
+
+/** The prototype's note event fields. */
+export interface PrototypeEvent {
+  t: number;
+  d: number;
+  n: number;
+  inst: string | null;
+  hit: boolean;
+}
+
+/**
+ * Runs the prototype's drawRoll on a fake canvas of the given CSS size and
+ * returns its fillRect calls. Colours are the names of the CSS variables, and
+ * instruments' colours are `inst:<name>`.
+ */
+export function prototypeRollDrawing(
+  piece: { events: PrototypeEvent[]; total: number; bpm: number; used: string[] },
+  instruments: { name: string; follow: boolean }[],
+  width: number,
+  height: number,
+): FillCall[] {
+  const calls: FillCall[] = [];
+  const g = {
+    fillStyle: '' as unknown,
+    setTransform() {},
+    fillRect(x: number, y: number, w: number, h: number) {
+      calls.push([this.fillStyle, x, y, w, h]);
+    },
+  };
+  const element = () => ({ hidden: false, replaceChildren() {}, style: {} });
+  // The canvas's box includes a 2-pixel border on each side.
+  const box = { clientWidth: width + 4, clientHeight: height + 4 };
+  const elements: Record<string, unknown> = {
+    '#roll': { parentElement: box, getContext: () => g, width: 0, height: 0 },
+    '#rollEmpty': element(),
+    '#legend': element(),
+    '#stats': element(),
+  };
+  const source = prototypeSource();
+  const helpers =
+    between(source, 'const clamp=', 'function h(') +
+    between(source, 'const fmtTime=', 'const fmtT=');
+  const roll = between(source, 'let rollState=null;', '/* =====================  transport');
+  const { drawRoll } = run<{ drawRoll: (res: unknown) => void }>(helpers + roll, '{ drawRoll }', {
+    window: { devicePixelRatio: 1 },
+    $: (selector: string) => elements[selector],
+    cssv: (name: string) => name,
+    h: () => ({}),
+    Lib: { inst: (name: string) => instruments.find((i) => i.name === name) },
+    instColor: (name: string) => `inst:${name}`,
+  });
+  drawRoll({ ok: true, ...piece });
+  return calls;
 }
