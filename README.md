@@ -5,7 +5,7 @@ A small music composition tool built around two ideas: **synth** and **motif**.
 - **Sounds are drawn.** You paint single-cycle waveforms on a pixel grid (8 to 64 columns, 2 to 16 levels), then build instruments from them. The limits are deliberate: the crunch is the charm.
 - **Music is text.** A tiny language lets you name notes, motifs, sections and whole pieces, and combine them with scopes (tuning, mode, tempo) and modifiers (transpose, reverse, fit, loop).
 
-Everything runs in the browser with the Web Audio API. It is written in TypeScript and built with Vite.
+Everything runs in the browser with the Web Audio API. It is written in TypeScript, with a React interface, and built with Vite.
 
 **Try it:** <https://crunchbangle.github.io/motynth/>
 
@@ -24,6 +24,7 @@ npm run build        # build the site into dist/
 | --- | --- |
 | `npm run dev` | Serves `app/` at a local address with live reload |
 | `npm test` | Runs the tests once (Vitest); `npm run test:watch` keeps running them |
+| `npm run test:e2e` | Builds the site and tests it in a real browser (Playwright) |
 | `npm run typecheck` | Type-checks everything with `tsc` (strict) |
 | `npm run format` | Formats with Prettier; `format:check` only checks |
 | `npm run build` | Builds the site into `dist/` |
@@ -35,16 +36,22 @@ Your code and sounds are saved in the browser's `localStorage`. Sounds saved by 
 
 ## Tests
 
-Tests live in `test/` and run with Vitest. Besides ordinary behaviour tests, two kinds compare the app with the original prototype in `prototype/motynth.html`, which is never edited:
+There are three layers:
 
-- **Engine parity** (`test/parity.test.ts`) loads the prototype's engine and requires identical results (notes, times, frequencies, error messages and positions) on every lesson and example, about 90 edge cases, 600 random programs and a randomly corrupted copy of each.
-- **Sound parity** (`test/sound/`) runs the prototype's wave, buffer and envelope code and requires the same samples and shapes.
+- **Unit and parity tests** (`test/`, Vitest) for the engine, sounds and audio maths. Many compare the app with the original prototype in `prototype/motynth.html`, which is never edited, by loading the prototype's own code:
+  - The engine gives identical results (notes, times, frequencies, error messages and positions) on every lesson and example, about 90 edge cases, 600 random programs and a randomly corrupted copy of each (`test/parity.test.ts`).
+  - Wave buffers match sample for sample, and envelopes point for point (`test/sound/`).
+  - Syntax highlighting, the piano roll and the wave and envelope pictures produce the same output and the same canvas drawing calls (`test/ui/`).
+- **Component tests** (`test/ui/*.test.tsx`, Vitest with Testing Library in jsdom) render the React tabs with a fake player and in-memory storage, and use them as a person would.
+- **Browser tests** (`e2e/`, Playwright) run the production build in real Chromium: real Web Audio, canvas, storage and reloads. They fail on any console error. To run them the first time, install the browser with `npx playwright install chromium`, or set `PLAYWRIGHT_CHANNEL=msedge` (or `chrome`) to use one you have.
 
-Tests use Vitest's global `test` and `expect` rather than importing them: on Windows, importing `vitest` from a working directory with a lowercase drive letter (as VS Code uses) loads it twice and finds no tests.
+Vitest tests use the global `test` and `expect` rather than importing them: on Windows, importing `vitest` from a working directory with a lowercase drive letter (as VS Code uses) loads it twice and finds no tests.
+
+Audio quality can't be tested automatically; listen when you change sound code.
 
 ## Deploy
 
-`.github/workflows/ci.yml` runs on every push and pull request: formatting, type check, tests, then build. On a push to `main`, if all of that passes, it deploys `dist/` to GitHub Pages.
+`.github/workflows/ci.yml` runs on every push and pull request: formatting, type check, tests, build, then browser tests. On a push to `main`, if all of that passes, it deploys `dist/` to GitHub Pages. If the browser tests fail, the run has a `playwright-report` artifact with traces.
 
 ## The app
 
@@ -129,12 +136,24 @@ app/
       voice.ts           one note as Web Audio nodes
       player.ts          real-time scheduling with look-ahead
       audio-engine.ts    the AudioContext and output chain
-    ui/                  the interface (being rewritten in React)
+    ui/                  the React interface
+      main.tsx           entry point
+      App.tsx            tabs, the Compose code, header Play
+      state/             the sound library and audio as React context; storage
+      shell/             header, tabs, logo, oscilloscope
+      code/              syntax highlighting
+      compose/           code editor, status line, piano roll
+      sounds/            lists, instrument and wave editors, test bar, pictures
+      learn/             lessons, snippets and the reference
+  public/                copied as is (favicon)
 test/                    Vitest tests, mirroring app/src
+e2e/                     Playwright browser tests
 prototype/               the original single-file prototype, kept as a reference
 ```
 
 A program goes from text to sound in four steps. `parseProgram` turns the text into a syntax tree. The `Evaluator` turns that into notes timed in exact fractions of a whole note. `compile` converts those to seconds and frequencies. The `Player` then schedules them in real time: every 50 ms it schedules the notes due in the next 0.8 s, each as a few Web Audio nodes (buffer sources and gains) with automated envelopes.
+
+`engine/` and `sound/` don't depend on React or the page, so they can be tested on their own and reused. The React components hold only interface state (which tab, which instrument is selected, the code being edited) and call into them. The sound library lives in React state and is saved 400 ms after the last change. Canvas pictures (the piano roll, wave grid, thumbnails and envelopes) are plain drawing functions that the components call, and they redraw when the system colour scheme changes.
 
 ## Todo
 
